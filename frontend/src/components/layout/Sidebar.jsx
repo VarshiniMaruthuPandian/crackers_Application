@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Flame,
   LayoutDashboard,
@@ -7,10 +7,6 @@ import {
   ArrowUpRight,
   Truck,
   Factory,
-  FileCode2,
-  Layers,
-  ShieldCheck,
-  Package,
   ArrowDownLeft,
   ShoppingBag,
   Building2,
@@ -26,6 +22,9 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  UserPlus,
+  ClipboardList,
   X
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -43,66 +42,124 @@ export const Sidebar = () => {
     theme
   } = useApp();
 
+  // Multi-dropdown state object: { [itemName]: boolean }
+  const [openDropdowns, setOpenDropdowns] = useState({
+    Agents: false,
+    Workers: false,
+    Manufacturing: false,
+    Inventory: false
+  });
+
+  // Track hover popover for collapsed sidebar
+  const [hoveredItem, setHoveredItem] = useState(null);
+
   const navGroups = [
     {
       group: 'OVERVIEW',
       items: [
-        { name: 'Dashboard', icon: LayoutDashboard }
+        { name: 'Dashboard', icon: LayoutDashboard, tab: 'Dashboard' }
       ]
     },
     {
       group: 'CRM & SALES',
       items: [
-        { name: 'Customers', icon: Users },
-        { name: 'Products', icon: Boxes },
-        { name: 'Exports', icon: ArrowUpRight },
-        { name: 'Dispatch', icon: Truck }
+        { name: 'Agents', icon: Users, drop:[{name: 'Add Agents', tab: 'Addagents', icon: UserPlus}, {name: 'List Agents', tab: 'Listagents', icon: ClipboardList}]},
+        { name: 'Customers', icon: Users, tab: 'Customers' },
+        { name: 'Products', icon: Boxes, tab: 'Products' },
+        { name: 'Exports', icon: ArrowUpRight, tab: 'Exports' },
+        { name: 'Dispatch', icon: Truck, tab: 'Dispatch' }
       ]
     },
     {
       group: 'MANUFACTURING',
       items: [
-        { name: 'Production', icon: Factory },
-        { name: 'BOM', icon: FileCode2 },
-        { name: 'RawMaterials', icon: Layers },
-        { name: 'QualityControl', icon: ShieldCheck },
-        { name: 'Packing', icon: Package }
+        {
+          name: 'Manufacturing',
+          icon: Factory,
+          drop: [
+            { name: 'Production Orders', tab: 'Production' },
+            { name: 'Bill of Materials (BOM)', tab: 'BOM' },
+            { name: 'Raw Materials', tab: 'RawMaterials' },
+            { name: 'Quality Control', tab: 'QualityControl' },
+            { name: 'Packaging Hub', tab: 'Packing' }
+          ]
+        }
       ]
     },
     {
       group: 'INVENTORY & PURCHASES',
       items: [
-        { name: 'Stock', icon: Boxes },
-        { name: 'Imports', icon: ArrowDownLeft },
-        { name: 'Purchases', icon: ShoppingBag },
-        { name: 'Suppliers', icon: Building2 }
+        { name: 'Stock', icon: Boxes, tab: 'Stock' },
+        { name: 'Imports', icon: ArrowDownLeft, tab: 'Imports' },
+        { name: 'Purchases', icon: ShoppingBag, tab: 'Purchases' },
+        { name: 'Suppliers', icon: Building2, tab: 'Suppliers' }
       ]
     },
     {
       group: 'WORKFORCE & HR',
       items: [
-        { name: 'Workers', icon: Users },
-        { name: 'Attendance', icon: CalendarCheck },
-        { name: 'Payroll', icon: CreditCard }
+        {
+          name: 'Workers',
+          icon: Users,
+          tab: 'Workers',
+          drop: [
+            { name: 'Add Workers', tab: 'Addworkers', icon: UserPlus },
+            { name: 'List Workers', tab: 'Listworkers', icon: ClipboardList },
+          ]
+        },
+        { name: 'Attendance', icon: CalendarCheck, tab: 'Attendance' },
+        { name: 'Payroll', icon: CreditCard, tab: 'Payroll' }
       ]
     },
     {
       group: 'GOVERNANCE & SYSTEM',
       items: [
-        { name: 'Safety', icon: ShieldAlert },
-        { name: 'Approvals', icon: CheckSquare, badge: pendingApprovalsCount },
-        { name: 'Documents', icon: FileText },
-        { name: 'AuditLog', icon: Shield },
-        { name: 'Analytics', icon: BarChart3 },
-        { name: 'Reports', icon: FileSpreadsheet },
-        { name: 'Settings', icon: Settings }
+        { name: 'Safety', icon: ShieldAlert, tab: 'Safety' },
+        { name: 'Approvals', icon: CheckSquare, tab: 'Approvals', badge: pendingApprovalsCount },
+        { name: 'Documents', icon: FileText, tab: 'Documents' },
+        { name: 'AuditLog', icon: Shield, tab: 'AuditLog' },
+        { name: 'Analytics', icon: BarChart3, tab: 'Analytics' },
+        { name: 'Reports', icon: FileSpreadsheet, tab: 'Reports' },
+        { name: 'Settings', icon: Settings, tab: 'Settings' }
       ]
     }
   ];
 
-  const handleNavClick = (name) => {
-    setCurrentTab(name);
+  // Auto-expand dropdown if active tab belongs to its sub-items
+  useEffect(() => {
+    navGroups.forEach((group) => {
+      group.items.forEach((item) => {
+        const subItems = item.drop || item.subItems;
+        if (subItems && subItems.some((sub) => (sub.tab || sub.name) === currentTab)) {
+          setOpenDropdowns((prev) => ({ ...prev, [item.name]: true }));
+        }
+      });
+    });
+  }, [currentTab]);
+
+  const toggleDropdown = (itemName) => {
+    setOpenDropdowns((prev) => ({
+      ...prev,
+      [itemName]: !prev[itemName]
+    }));
+  };
+
+  const handleNavClick = (tabName) => {
+    if (tabName) {
+      setCurrentTab(tabName);
+    }
     if (mobileMenuOpen) setMobileMenuOpen(false);
+    setHoveredItem(null);
+  };
+
+  const isItemActive = (item) => {
+    const itemTab = item.tab || item.name;
+    if (currentTab === itemTab) return true;
+    const subItems = item.drop || item.subItems;
+    if (subItems && subItems.some((sub) => (sub.tab || sub.name) === currentTab)) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -119,13 +176,11 @@ export const Sidebar = () => {
       <aside
         className={`fixed top-0 bottom-0 left-0 z-50 bg-slate-950 border-r border-slate-800/80 transition-all duration-300 flex flex-col justify-between ${
           sidebarCollapsed ? 'md:w-20' : 'md:w-64'
-        } ${
-          mobileMenuOpen ? 'translate-x-0 w-64 shadow-2xl' : '-translate-x-full md:translate-x-0'
-        }`}
+        } ${mobileMenuOpen ? 'translate-x-0 w-64 shadow-2xl' : '-translate-x-full md:translate-x-0'}`}
       >
         {/* Top Logo */}
-        <div>
-          <div className="h-18 flex items-center justify-between px-4 border-b border-slate-800/80">
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="h-18 flex items-center justify-between px-4 border-b border-slate-800/80 shrink-0">
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-600 via-amber-500 to-yellow-400 p-0.5 shadow-lg shadow-orange-500/20 shrink-0">
                 <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
@@ -146,7 +201,7 @@ export const Sidebar = () => {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="hidden md:flex p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors shrink-0"
+                className="hidden md:flex p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors shrink-0"
                 title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
               >
                 {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -154,15 +209,15 @@ export const Sidebar = () => {
 
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="md:hidden p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 shrink-0"
+                className="md:hidden p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Navigation Items */}
-          <div className="p-3 space-y-5 overflow-y-auto max-h-[calc(100vh-140px)]">
+          {/* Navigation Items List */}
+          <div className="p-3 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
             {navGroups.map((group, idx) => (
               <div key={idx} className="space-y-1">
                 {(!sidebarCollapsed || mobileMenuOpen) && (
@@ -170,37 +225,185 @@ export const Sidebar = () => {
                     {group.group}
                   </p>
                 )}
+
                 {group.items.map((item) => {
                   const Icon = item.icon;
-                  const isActive = currentTab === item.name;
+                  const hasDropdown = (item.drop && item.drop.length > 0) || (item.subItems && item.subItems.length > 0);
+                  const subItems = item.drop || item.subItems || [];
+                  const isOpen = !!openDropdowns[item.name];
+                  const active = isItemActive(item);
+                  const isDirectActive = currentTab === (item.tab || item.name);
+
                   return (
-                    <button
+                    <div
                       key={item.name}
-                      onClick={() => handleNavClick(item.name)}
-                      className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-xs transition-all duration-200 group relative ${
-                        isActive
-                          ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 text-orange-400 border border-orange-500/30 shadow-lg shadow-orange-500/10 font-bold'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent'
-                      }`}
-                      title={sidebarCollapsed && !mobileMenuOpen ? item.name : undefined}
+                      className="relative group/item"
+                      onMouseEnter={() => sidebarCollapsed && !mobileMenuOpen && setHoveredItem(item.name)}
+                      onMouseLeave={() => sidebarCollapsed && !mobileMenuOpen && setHoveredItem(null)}
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
-                          isActive ? 'text-orange-400' : 'text-slate-400 group-hover:text-slate-200'
-                        }`} />
-                        {(!sidebarCollapsed || mobileMenuOpen) && <span className="truncate">{item.name}</span>}
-                      </div>
+                      {/* Main Navigation Item Button */}
+                      <button
+                        onClick={() => {
+                          if (hasDropdown) {
+                            toggleDropdown(item.name);
+                          } else {
+                            handleNavClick(item.tab || item.name);
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all duration-200 group relative ${
+                          active
+                            ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 text-orange-400 border border-orange-500/30 shadow-lg shadow-orange-500/10 font-bold'
+                            : 'text-slate-400 hover:text-white hover:bg-slate-900/80 border border-transparent'
+                        }`}
+                        title={sidebarCollapsed && !mobileMenuOpen ? item.name : undefined}
+                        aria-expanded={hasDropdown ? isOpen : undefined}
+                      >
+                        {/* Left side - Icon + Label */}
+                        <div className="flex items-center gap-3">
+                          <Icon
+                            className={`w-4 h-4 shrink-0 transition-all duration-200 group-hover:scale-110 ${
+                              active ? 'text-orange-400 group-hover:text-white' : 'text-slate-400 group-hover:text-white'
+                            }`}
+                          />
 
-                      {(!sidebarCollapsed || mobileMenuOpen) && item.badge > 0 && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-black rounded-full bg-orange-500 text-slate-950 shadow-md">
-                          {item.badge}
-                        </span>
+                          {(!sidebarCollapsed || mobileMenuOpen) && (
+                            <span className="truncate group-hover:text-white">{item.name}</span>
+                          )}
+                        </div>
+
+                        {/* Right side - Badge & Chevron */}
+                        {(!sidebarCollapsed || mobileMenuOpen) && (
+                          <div className="flex items-center gap-2">
+                            {/* Badge */}
+                            {item.badge > 0 && (
+                              <span className="px-1.5 py-0.5 text-[10px] font-black rounded-full bg-orange-500 text-slate-950 shadow-md">
+                                {item.badge}
+                              </span>
+                            )}
+
+                            {/* Dropdown Chevron */}
+                            {hasDropdown && (
+                              <ChevronDown
+                                className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                  isOpen ? 'rotate-180 text-orange-400 group-hover:text-white' : 'text-slate-400 group-hover:text-white'
+                                }`}
+                              />
+                            )}
+                          </div>
+                        )}
+
+                        {/* Active Indicator Bar */}
+                        {isDirectActive && (
+                          <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-orange-500 rounded-l-full shadow-md shadow-orange-500/50" />
+                        )}
+                      </button>
+
+                      {/* Expanded Submenu Dropdown for Expanded Sidebar / Mobile */}
+                      {hasDropdown && isOpen && (!sidebarCollapsed || mobileMenuOpen) && (
+                        <div className="ml-5 pl-3 mt-1 space-y-1 border-l border-slate-800/80 animate-fade-in">
+                          {subItems.map((sub) => {
+                            const subTab = sub.tab || sub.name;
+                            const isSubActive = currentTab === subTab;
+                            const SubIcon = sub.icon;
+
+                            return (
+                              <button
+                                key={sub.name}
+                                onClick={() => handleNavClick(subTab)}
+                                className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-xs transition-all duration-150 relative group/sub ${
+                                  isSubActive
+                                    ? 'text-orange-400 bg-orange-500/15 font-bold border border-orange-500/20 shadow-sm'
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 truncate">
+                                  {SubIcon ? (
+                                    <SubIcon
+                                      className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                                        isSubActive ? 'text-orange-400' : 'text-slate-400 group-hover/sub:text-white'
+                                      }`}
+                                    />
+                                  ) : (
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                                        isSubActive ? 'bg-orange-400 ring-2 ring-orange-500/30' : 'bg-slate-600 group-hover/sub:bg-white'
+                                      }`}
+                                    />
+                                  )}
+                                  <span className="truncate text-slate-400 group-hover/sub:text-white">{sub.name}</span>
+                                </div>
+
+                                {sub.badge > 0 && (
+                                  <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-slate-800 text-orange-400 border border-slate-700">
+                                    {sub.badge}
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
                       )}
 
-                      {isActive && (
-                        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-orange-500 rounded-l-full shadow-md shadow-orange-500/50" />
+                      {/* Collapsed Sidebar Hover Popover Submenu */}
+                      {sidebarCollapsed && !mobileMenuOpen && hoveredItem === item.name && (
+                        <div className="fixed left-20 z-50 ml-2 w-52 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2.5 animate-fade-in backdrop-blur-xl">
+                          <div className="px-2.5 py-1.5 border-b border-slate-800/80 mb-1 flex items-center justify-between">
+                            <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                              <Icon className="w-3.5 h-3.5 text-orange-400" />
+                              {item.name}
+                            </span>
+                            {item.badge > 0 && (
+                              <span className="px-1.5 py-0.5 text-[9px] font-black rounded-full bg-orange-500 text-slate-950">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+
+                          {hasDropdown ? (
+                            <div className="space-y-1">
+                              {subItems.map((sub) => {
+                                const subTab = sub.tab || sub.name;
+                                const isSubActive = currentTab === subTab;
+                                const SubIcon = sub.icon;
+                                return (
+                                  <button
+                                    key={sub.name}
+                                    onClick={() => handleNavClick(subTab)}
+                                    className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-2 transition-colors group/popsub ${
+                                      isSubActive
+                                        ? 'bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30'
+                                        : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                                    }`}
+                                  >
+                                    {SubIcon ? (
+                                      <SubIcon
+                                        className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                                          isSubActive ? 'text-orange-400' : 'text-slate-400 group-hover/popsub:text-white'
+                                        }`}
+                                      />
+                                    ) : (
+                                      <span
+                                        className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                                          isSubActive ? 'bg-orange-400' : 'bg-slate-600 group-hover/popsub:bg-white'
+                                        }`}
+                                      />
+                                    )}
+                                    <span className="truncate text-slate-300 group-hover/popsub:text-white">{sub.name}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleNavClick(item.tab || item.name)}
+                              className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs text-slate-300 hover:bg-slate-800/80 hover:text-white"
+                            >
+                              Open {item.name}
+                            </button>
+                          )}
+                        </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -209,7 +412,7 @@ export const Sidebar = () => {
         </div>
 
         {/* Logout Bottom */}
-        <div className="p-3 border-t border-slate-800/80">
+        <div className="p-3 border-t border-slate-800/80 shrink-0">
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-transparent transition-all"
@@ -223,3 +426,4 @@ export const Sidebar = () => {
     </>
   );
 };
+

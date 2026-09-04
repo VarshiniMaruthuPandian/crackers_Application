@@ -40,9 +40,13 @@ const safetyRecordRoutes = require('./routes/safetyRecordRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const approvalRoutes = require('./routes/approvalRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
+const workerAllocationRoutes = require('./routes/workerAllocationRoutes');
 
+
+const agentRoutes = require('./routes/agentRoutes');
 
 // Mount routers
+app.use('/api/agents', agentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/crackers', crackerRoutes);
 app.use('/api/suppliers', supplierRoutes);
@@ -66,6 +70,7 @@ app.use('/api/safetyRecords', safetyRecordRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/approvals', approvalRoutes);
 app.use('/api/auditLogs', auditLogRoutes);
+app.use('/api/workerAllocations', workerAllocationRoutes);
 
 
 // Auth Login Mock Route

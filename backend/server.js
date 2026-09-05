@@ -46,9 +46,11 @@ const shopItemRoutes = require('./routes/shopItemRoutes');
 const dailyRegisterRoutes = require('./routes/dailyRegisterRoutes');
 
 const agentRoutes = require('./routes/agentRoutes');
+const agentAccountRoutes = require('./routes/agentAccountRoutes');
 
 // Mount routers
 app.use('/api/agents', agentRoutes);
+app.use('/api/agent-accounts', agentAccountRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/crackers', crackerRoutes);
 app.use('/api/suppliers', supplierRoutes);

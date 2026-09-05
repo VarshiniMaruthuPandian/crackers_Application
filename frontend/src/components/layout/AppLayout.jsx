@@ -16,6 +16,8 @@ import { AddworkersView } from '../views/AddworkersView';
 import { ListworkersView } from '../views/ListworkersView';
 import { AddagentsView } from '../views/AddagentsView';
 import { ListagentsView } from '../views/ListagentsView';
+import { AgentAccountsView } from '../views/AgentAccountsView';
+import { AgentReportsView } from '../views/AgentReportsView';
 import { AttendanceView } from '../views/AttendanceView';
 import { PayrollView } from '../views/PayrollView';
 import { SuppliersView } from '../views/SuppliersView';
@@ -91,6 +93,10 @@ export const AppLayout = () => {
       case 'Listagents':
       case 'Agents':
         return <ListagentsView />;
+      case 'AgentAccounts':
+        return <AgentAccountsView />;
+      case 'AgentReports':
+        return <AgentReportsView />;
       case 'Addworkers':
         return <AddworkersView />;
       case 'Listworkers':

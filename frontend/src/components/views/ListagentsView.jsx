@@ -17,9 +17,11 @@ import {
   Building2,
   RefreshCw,
   Sparkles,
-  Layers
+  Layers,
+  FileSpreadsheet
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { Pagination } from '../common/Pagination';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -104,6 +106,31 @@ const handlePrintReport = (records) => {
   }, 300);
 };
 
+// CSV Export Handler
+const handleExportCSV = (records) => {
+  if (!records || records.length === 0) return;
+
+  const headers = ['S.No', 'Agent Name', 'Phone Number', 'GST Number', 'Assigned Items', 'Status'];
+  const rows = records.map((agent, index) => [
+    index + 1,
+    `"${(agent.name || '').replace(/"/g, '""')}"`,
+    `"${(agent.phone || '').replace(/"/g, '""')}"`,
+    `"${(agent.gst || '').replace(/"/g, '""')}"`,
+    `"${(agent.items || '').replace(/"/g, '""')}"`,
+    `"${(agent.status || 'Active').replace(/"/g, '""')}"`
+  ]);
+
+  const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Agents_Report_${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 export const ListagentsView = () => {
   const { showToast, setCurrentTab } = useApp();
 
@@ -111,6 +138,10 @@ export const ListagentsView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Edit Modal State
   const [editingAgent, setEditingAgent] = useState(null);
@@ -127,11 +158,17 @@ export const ListagentsView = () => {
     fetchAgents();
   }, []);
 
+  // Reset to page 1 on filter/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
+
   const fetchAgents = async () => {
     setIsLoading(true);
     try {
       const res = await axios.get(`${API_URL}/agents`);
-      setAgents(res.data);
+      // Sort descending (latest added first)
+      setAgents([...res.data].reverse());
     } catch (err) {
       if (showToast) showToast('Failed to load agents', 'error');
     } finally {
@@ -188,6 +225,18 @@ export const ListagentsView = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const totalPages = Math.ceil(filteredAgents.length / itemsPerPage);
+
+  // Auto-adjust page if current page exceeds total pages after deletion
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [filteredAgents.length, totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedAgents = filteredAgents.slice(startIndex, startIndex + itemsPerPage);
+
   const totalAgents = agents.length;
   const activeAgents = agents.filter((a) => (a.status || 'Active') === 'Active').length;
   const gstRegistered = agents.filter((a) => a.gst && a.gst.trim().length > 0).length;
@@ -211,6 +260,15 @@ export const ListagentsView = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleExportCSV(filteredAgents)}
+            disabled={filteredAgents.length === 0}
+            className="px-3.5 py-2.5 bg-slate-900 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+            title="Export CSV Report"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-400" /> Export CSV
+          </button>
+
           <button
             onClick={() => handlePrintReport(filteredAgents)}
             disabled={filteredAgents.length === 0}
@@ -332,9 +390,9 @@ export const ListagentsView = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 text-xs">
-                {filteredAgents.map((agent, index) => (
+                {paginatedAgents.map((agent, index) => (
                   <tr key={agent._id} className="hover:bg-slate-900/50 transition-colors">
-                    <td className="py-4 px-6 font-bold text-orange-400">{index + 1}</td>
+                    <td className="py-4 px-6 font-bold text-orange-400">{startIndex + index + 1}</td>
 
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
@@ -371,7 +429,7 @@ export const ListagentsView = () => {
                           {agent.items.split(',').map((it, idx) => (
                             <span
                               key={idx}
-                              className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20 text-[11px] font-medium"
+                              className="px-2 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-[11px] font-medium"
                             >
                               {it.trim()}
                             </span>
@@ -416,6 +474,17 @@ export const ListagentsView = () => {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Component */}
+            <div className="p-4 border-t border-slate-800/80">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                totalItems={filteredAgents.length}
+                itemsPerPage={itemsPerPage}
+              />
+            </div>
           </div>
         )}
       </div>

@@ -108,25 +108,24 @@ export const AddworkersView = () => {
     const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     try {
-      // Save each selected department as a separate record to backend
-      const saved = await Promise.all(
-        selectedDepts.map((deptId) =>
-          axios.post(`${API_URL}/workerAllocations`, {
-            id: `ALC-${Math.floor(100 + Math.random() * 900)}`,
-            department: deptId,
-            count: parseInt(deptCounts[deptId], 10),
-            date: selectedDate,
-            time: currentTime
-          })
-        )
-      );
+      // Save single record per date containing office, money, set, finishing, godown counts
+      const res = await axios.post(`${API_URL}/workerAllocations`, {
+        id: `ALC-${Math.floor(100 + Math.random() * 900)}`,
+        date: selectedDate,
+        time: currentTime,
+        office: parseInt(deptCounts['Office'] || 0, 10),
+        money: parseInt(deptCounts['Money'] || 0, 10),
+        set: parseInt(deptCounts['Set'] || 0, 10),
+        finishing: parseInt(deptCounts['Finishing'] || 0, 10),
+        godown: parseInt(deptCounts['Godown'] || 0, 10)
+      });
 
-      // Prepend newly saved records to local table state
-      setAllocationsTable((prev) => [...saved.map((r) => r.data), ...prev]);
+      // Prepend newly saved record to local table state
+      setAllocationsTable((prev) => [res.data, ...prev]);
 
       if (showToast) {
         showToast(
-          `Saved ${totalWorkersCount} workers across ${selectedDepts.length} department(s) to database!`,
+          `Saved ${totalWorkersCount} workers on date ${selectedDate} to database!`,
           'success'
         );
       }
@@ -323,7 +322,7 @@ export const AddworkersView = () => {
               {isSaving ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
               ) : (
-                <><CheckCircle2 className="w-4 h-4 stroke-[2.5]" /> Save to Database</>
+                <><CheckCircle2 className="w-4 h-4 stroke-[2.5]" /> Save workers</>
               )}
             </button>
           </div>

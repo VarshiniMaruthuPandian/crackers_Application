@@ -162,7 +162,6 @@ export const AddagentsView = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="e.g. Senthil Kumar"
                   required
                   className="w-full px-4 py-3 bg-slate-900/90 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 />
@@ -180,7 +179,6 @@ export const AddagentsView = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="e.g. +91 98765 43210"
                   required
                   className="w-full px-4 py-3 bg-slate-900/90 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 />
@@ -198,7 +196,6 @@ export const AddagentsView = () => {
                   name="gst"
                   value={formData.gst}
                   onChange={handleChange}
-                  placeholder="e.g. 33AAAAA0000A1Z5"
                   className="w-full px-4 py-3 bg-slate-900/90 border border-slate-800 rounded-xl text-sm text-slate-100 uppercase tracking-wider placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 />
               </div>
@@ -215,7 +212,6 @@ export const AddagentsView = () => {
                   name="items"
                   value={formData.items}
                   onChange={handleChange}
-                  placeholder="e.g. Sparklers, Flower Pots, Rockets"
                   className="w-full px-4 py-3 bg-slate-900/90 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 />
               </div>
@@ -227,7 +223,7 @@ export const AddagentsView = () => {
             <button
               type="button"
               onClick={() => setFormData({ name: '', phone: '', gst: '', items: '', status: 'Active' })}
-              className="px-5 py-2.5 rounded-xl border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 hover:border-slate-700 font-semibold text-xs transition-all"
+              className="px-5 py-2.5 rounded-xl border border-slate-800 hover:text-white hover:bg-slate-800 hover:border-slate-700 font-semibold text-xs transition-all"
             >
               Reset
             </button>

@@ -37,6 +37,7 @@ import { SafetyView } from '../views/SafetyView';
 import { DocumentsView } from '../views/DocumentsView';
 import { ApprovalsView } from '../views/ApprovalsView';
 import { AuditLogView } from '../views/AuditLogView';
+import { ShopItemsView } from '../views/ShopItemsView';
 
 export const AppLayout = () => {
   const { isAuthenticated, currentTab, sidebarCollapsed, theme } = useApp();
@@ -51,10 +52,17 @@ export const AppLayout = () => {
         return <DashboardView />;
       case 'Customers':
         return <CustomersView />;
+      case 'ShopItems':
+      case 'ItemMaster':
+      case 'Item Master':
+        return <ShopItemsView />;
       case 'Products':
         return <ProductsView />;
       case 'Exports':
+      case 'ExportsRegister':
+      case 'ExportsStock':
         return <ExportsView />;
+
       case 'Dispatch':
         return <DispatchView />;
       case 'Production':
@@ -70,11 +78,15 @@ export const AppLayout = () => {
       case 'Stock':
         return <StockView />;
       case 'Imports':
+      case 'ImportsAdd':
+      case 'ImportsList':
         return <ImportsView />;
+
       case 'Purchases':
         return <PurchasesView />;
       case 'Suppliers':
         return <SuppliersView />;
+<<<<<<< Updated upstream
       case 'Addagents':
         return <AddagentsView />;
       case 'Listagents':
@@ -84,6 +96,11 @@ export const AppLayout = () => {
         return <AddworkersView />;
       case 'Listworkers':
         return <ListworkersView />;
+=======
+
+      case 'Workers':
+        return <WorkersView />;
+>>>>>>> Stashed changes
       case 'Attendance':
         return <AttendanceView />;
       case 'Payroll':

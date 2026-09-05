@@ -30,9 +30,11 @@ export const ReportsView = () => {
     showToast
   } = useApp();
 
+  const todayDateStr = new Date().toISOString().split('T')[0];
+
   const [activeReportTab, setActiveReportTab] = useState('import'); // 'import' | 'export' | 'stock' | 'attendance' | 'salary'
   const [fromDate, setFromDate] = useState('2026-08-01');
-  const [toDate, setToDate] = useState('2026-08-26');
+  const [toDate, setToDate] = useState(todayDateStr);
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [selectedCracker, setSelectedCracker] = useState('');
   const [selectedWorker, setSelectedWorker] = useState('');
@@ -168,8 +170,17 @@ export const ReportsView = () => {
             <label className="block text-xs font-semibold text-slate-400 mb-1">From Date</label>
             <input
               type="date"
+              max={todayDateStr}
               value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val > todayDateStr) {
+                  showToast('Future dates are not allowed', 'warning');
+                  setFromDate(todayDateStr);
+                } else {
+                  setFromDate(val);
+                }
+              }}
               className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200"
             />
           </div>
@@ -178,8 +189,17 @@ export const ReportsView = () => {
             <label className="block text-xs font-semibold text-slate-400 mb-1">To Date</label>
             <input
               type="date"
+              max={todayDateStr}
               value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val > todayDateStr) {
+                  showToast('Future dates are not allowed', 'warning');
+                  setToDate(todayDateStr);
+                } else {
+                  setToDate(val);
+                }
+              }}
               className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200"
             />
           </div>

@@ -40,13 +40,10 @@ const safetyRecordRoutes = require('./routes/safetyRecordRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const approvalRoutes = require('./routes/approvalRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
-<<<<<<< Updated upstream
 const workerAllocationRoutes = require('./routes/workerAllocationRoutes');
 
-=======
 const shopItemRoutes = require('./routes/shopItemRoutes');
 const dailyRegisterRoutes = require('./routes/dailyRegisterRoutes');
->>>>>>> Stashed changes
 
 const agentRoutes = require('./routes/agentRoutes');
 
@@ -75,12 +72,9 @@ app.use('/api/safetyRecords', safetyRecordRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/approvals', approvalRoutes);
 app.use('/api/auditLogs', auditLogRoutes);
-<<<<<<< Updated upstream
 app.use('/api/workerAllocations', workerAllocationRoutes);
-=======
 app.use('/api/shop-items', shopItemRoutes);
 app.use('/api/daily-registers', dailyRegisterRoutes);
->>>>>>> Stashed changes
 
 
 // Auth Login Mock Route

@@ -25,6 +25,7 @@ import {
   ChevronDown,
   UserPlus,
   ClipboardList,
+  Wallet,
   X,
   Tag,
   Plus,
@@ -48,6 +49,7 @@ export const Sidebar = () => {
   // Multi-dropdown state object: { [itemName]: boolean }
   const [openDropdowns, setOpenDropdowns] = useState({
     Agents: false,
+    'Agent Accounts': false,
     Exports: false,
     Manufacturing: false,
     Imports: false,
@@ -73,6 +75,14 @@ export const Sidebar = () => {
           subItems: [
             { name: 'Add Agents', tab: 'Addagents', icon: UserPlus },
             { name: 'List Agents', tab: 'Listagents', icon: ClipboardList }
+          ]
+        },
+        {
+          name: 'Agent Accounts',
+          icon: Wallet,
+          subItems: [
+            { name: 'Agent Accounts', tab: 'AgentAccounts', icon: CreditCard },
+            { name: 'Agent Reports', tab: 'AgentReports', icon: FileSpreadsheet }
           ]
         },
         { name: 'Customers', icon: Users, tab: 'Customers' },

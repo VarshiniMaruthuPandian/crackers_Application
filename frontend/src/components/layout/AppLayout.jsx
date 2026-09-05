@@ -86,7 +86,6 @@ export const AppLayout = () => {
         return <PurchasesView />;
       case 'Suppliers':
         return <SuppliersView />;
-<<<<<<< Updated upstream
       case 'Addagents':
         return <AddagentsView />;
       case 'Listagents':
@@ -96,11 +95,9 @@ export const AppLayout = () => {
         return <AddworkersView />;
       case 'Listworkers':
         return <ListworkersView />;
-=======
 
       case 'Workers':
         return <WorkersView />;
->>>>>>> Stashed changes
       case 'Attendance':
         return <AttendanceView />;
       case 'Payroll':

@@ -11,9 +11,12 @@ import {
   CheckCircle2,
   XCircle,
   SlidersHorizontal,
-  X
+  X,
+  FileSpreadsheet,
+  Download
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { downloadExcel, downloadPDF } from '../../utils/exportUtils';
 
 export const StockView = () => {
   const { stock, setStock, crackers, showToast, setCurrentTab } = useApp();
@@ -39,6 +42,41 @@ export const StockView = () => {
 
   const lowStockCount = stock.filter((s) => s.status === 'Low Stock' || s.availableBundles <= s.reorderLevel).length;
   const inStockCount = stock.filter((s) => s.status === 'In Stock').length;
+
+  const handleDownloadExcel = () => {
+    const cols = [
+      { header: 'Cracker Name', key: 'cracker' },
+      { header: 'Category', key: 'category' },
+      { header: 'Total Imported', key: 'totalImported' },
+      { header: 'Total Exported', key: 'totalExported' },
+      { header: 'Available Bundles', key: 'availableBundles' },
+      { header: 'Available Packets', key: 'availablePackets' },
+      { header: 'Reorder Level', key: 'reorderLevel' },
+      { header: 'Status', key: 'status' },
+      { header: 'Last Updated', key: 'lastUpdated' }
+    ];
+    downloadExcel('Total_Items_Available_Stock_Report', 'Items Available', cols, filteredStock);
+    showToast('Total available items list downloaded as Excel!', 'success');
+  };
+
+  const handleDownloadPDF = () => {
+    const cols = [
+      { header: 'Item Name', key: 'cracker' },
+      { header: 'Category', key: 'category' },
+      { header: 'Imported', key: 'totalImported' },
+      { header: 'Exported', key: 'totalExported' },
+      { header: 'Avail Bundles', key: 'availableBundles' },
+      { header: 'Avail Packets', key: 'availablePackets' },
+      { header: 'Status', key: 'status' }
+    ];
+    const totalAvail = filteredStock.reduce((acc, c) => acc + (c.availableBundles || 0), 0);
+    downloadPDF('Total_Items_Available_Stock_Report', 'Total Available Items Stock Report', cols, filteredStock, {
+      'Total Items': filteredStock.length,
+      'Available Stock': `${totalAvail} Bundles`,
+      'Low Stock Items': lowStockCount
+    });
+    showToast('Available items report downloaded as PDF!', 'success');
+  };
 
   const handleAdjustSubmit = (e) => {
     e.preventDefault();
@@ -73,14 +111,27 @@ export const StockView = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-6 rounded-3xl border border-slate-800">
         <div>
           <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <Boxes className="w-6 h-6 text-orange-400" /> Stock Inventory Management
+            <Boxes className="w-6 h-6 text-orange-400" /> Item Available & Stock Inventory
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Real-time warehouse stock tracking, available bundles & reorder alerts.
+            Real-time warehouse stock tracking, total available items, & reorder alerts.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleDownloadExcel}
+            className="px-3.5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold text-xs rounded-xl border border-emerald-500/20 flex items-center gap-1.5 transition-all"
+          >
+            <FileSpreadsheet className="w-4 h-4" /> Download Excel
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all"
+          >
+            <Download className="w-4 h-4 text-orange-400" /> Download PDF
+          </button>
+
           <div className="flex items-center p-1 bg-slate-900 border border-slate-800 rounded-xl">
             <button
               onClick={() => setActiveTab('inventory')}
@@ -101,6 +152,7 @@ export const StockView = () => {
           </div>
         </div>
       </div>
+
 
       {/* Overview Metric Pills */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -314,11 +366,13 @@ export const StockView = () => {
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">Bundle Adjustment (+ or -)</label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   required
                   value={adjustAmount}
-                  onChange={(e) => setAdjustAmount(Number(e.target.value))}
-                  placeholder="e.g. +5 or -2"
+                  onWheel={(e) => e.currentTarget.blur()}
+                  onChange={(e) => setAdjustAmount(e.target.value.replace(/[^0-9\-+]/g, ''))}
+                  placeholder="e.g. 5 or -2"
                   className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 font-mono"
                 />
                 <p className="text-[10px] text-slate-500 mt-1">Enter positive number to add stock, negative to subtract damaged/lost items.</p>

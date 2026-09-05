@@ -26,6 +26,8 @@ const Document = require('./models/Document');
 const Approval = require('./models/Approval');
 const AuditLog = require('./models/AuditLog');
 const User = require('./models/User');
+const ShopItem = require('./models/ShopItem');
+const DailyRegister = require('./models/DailyRegister');
 
 // Mock Data
 const mockData = require('./mockData.cjs');
@@ -50,7 +52,7 @@ const seedData = async () => {
       Notification.deleteMany(), Activity.deleteMany(), Customer.deleteMany(), RawMaterial.deleteMany(),
       ProductionOrder.deleteMany(), Bom.deleteMany(), PurchaseRequest.deleteMany(), QcRecord.deleteMany(),
       PackingOrder.deleteMany(), DispatchOrder.deleteMany(), SafetyRecord.deleteMany(), Document.deleteMany(),
-      Approval.deleteMany(), AuditLog.deleteMany(), User.deleteMany()
+      Approval.deleteMany(), AuditLog.deleteMany(), User.deleteMany(), ShopItem.deleteMany(), DailyRegister.deleteMany()
     ]);
 
     // Insert Default User
@@ -85,6 +87,8 @@ const seedData = async () => {
     await Document.insertMany(mapWithCustomId(mockData.INITIAL_DOCUMENTS));
     await Approval.insertMany(mapWithCustomId(mockData.INITIAL_APPROVALS));
     await AuditLog.insertMany(mapWithCustomId(mockData.INITIAL_AUDIT_LOGS));
+    if (mockData.INITIAL_SHOP_ITEMS) await ShopItem.insertMany(mapWithCustomId(mockData.INITIAL_SHOP_ITEMS));
+    if (mockData.INITIAL_DAILY_REGISTERS) await DailyRegister.insertMany(mapWithCustomId(mockData.INITIAL_DAILY_REGISTERS));
 
     console.log('Data Imported!');
     process.exit();
@@ -93,5 +97,6 @@ const seedData = async () => {
     process.exit(1);
   }
 };
+
 
 seedData();

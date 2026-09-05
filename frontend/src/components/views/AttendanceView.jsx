@@ -23,7 +23,9 @@ export const AttendanceView = () => {
     workers
   } = useApp();
 
-  const [selectedDate, setSelectedDate] = useState('2026-08-26');
+  const todayDateStr = new Date().toISOString().split('T')[0];
+
+  const [selectedDate, setSelectedDate] = useState(todayDateStr);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('daily'); // 'daily' | 'calendar'
 
@@ -136,8 +138,17 @@ export const AttendanceView = () => {
               <span className="text-xs font-semibold text-slate-400">Date:</span>
               <input
                 type="date"
+                max={todayDateStr}
                 value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val > todayDateStr) {
+                    showToast('Future dates are not allowed', 'warning');
+                    setSelectedDate(todayDateStr);
+                  } else {
+                    setSelectedDate(val);
+                  }
+                }}
                 className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200"
               />
             </div>

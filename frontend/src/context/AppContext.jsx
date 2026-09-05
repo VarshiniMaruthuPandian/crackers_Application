@@ -6,17 +6,55 @@ const AppContext = createContext();
 const API_URL = 'http://localhost:5000/api';
 
 export const AppProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState('Super Admin');
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('crackerhub_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem('crackerhub_user');
+  });
+
+  const [userRole, setUserRole] = useState(() => {
+    return localStorage.getItem('crackerhub_user_role') || 'Super Admin';
+  });
+
+  const [currentTab, setCurrentTab] = useState(() => {
+    return localStorage.getItem('crackerhub_current_tab') || 'Dashboard';
+  });
+
   const [theme, setTheme] = useState('dark');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const [user, setUser] = useState(null);
-
-  const [currentTab, setCurrentTab] = useState('Dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
+
+  // Persist session & current tab changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('crackerhub_user', JSON.stringify(user));
+      setIsAuthenticated(true);
+    } else {
+      localStorage.removeItem('crackerhub_user');
+      setIsAuthenticated(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (userRole) {
+      localStorage.setItem('crackerhub_user_role', userRole);
+    }
+  }, [userRole]);
+
+  useEffect(() => {
+    if (currentTab) {
+      localStorage.setItem('crackerhub_current_tab', currentTab);
+    }
+  }, [currentTab]);
 
   // Core & Extended Data states
   const [crackers, setCrackers] = useState([]);
@@ -43,6 +81,8 @@ export const AppProvider = ({ children }) => {
   const [documents, setDocuments] = useState([]);
   const [approvals, setApprovals] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
+  const [shopItems, setShopItems] = useState([]);
+  const [dailyRegisters, setDailyRegisters] = useState([]);
 
   // Toast System
   const [toast, setToast] = useState(null);
@@ -54,7 +94,7 @@ export const AppProvider = ({ children }) => {
         crackersRes, suppliersRes, workersRes, importsRes, exportsRes, stockRes, attendanceRes, payrollRes,
         notificationsRes, activitiesRes, customersRes, rawMaterialsRes, productionOrdersRes,
         bomRes, purchaseRequestsRes, qcRecordsRes, packingOrdersRes, dispatchOrdersRes,
-        safetyRecordsRes, documentsRes, approvalsRes, auditLogsRes
+        safetyRecordsRes, documentsRes, approvalsRes, auditLogsRes, shopItemsRes, dailyRegistersRes
       ] = await Promise.all([
         axios.get(`${API_URL}/crackers`), axios.get(`${API_URL}/suppliers`), axios.get(`${API_URL}/workers`),
         axios.get(`${API_URL}/imports`), axios.get(`${API_URL}/exports`), axios.get(`${API_URL}/stocks`),
@@ -63,7 +103,7 @@ export const AppProvider = ({ children }) => {
         axios.get(`${API_URL}/productionOrders`), axios.get(`${API_URL}/boms`), axios.get(`${API_URL}/purchaseRequests`),
         axios.get(`${API_URL}/qcRecords`), axios.get(`${API_URL}/packingOrders`), axios.get(`${API_URL}/dispatchOrders`),
         axios.get(`${API_URL}/safetyRecords`), axios.get(`${API_URL}/documents`), axios.get(`${API_URL}/approvals`),
-        axios.get(`${API_URL}/auditLogs`)
+        axios.get(`${API_URL}/auditLogs`), axios.get(`${API_URL}/shop-items`), axios.get(`${API_URL}/daily-registers`)
       ]);
 
       setCrackers(crackersRes.data);
@@ -89,6 +129,8 @@ export const AppProvider = ({ children }) => {
       setDocuments(documentsRes.data);
       setApprovals(approvalsRes.data);
       setAuditLogs(auditLogsRes.data);
+      setShopItems(shopItemsRes.data);
+      setDailyRegisters(dailyRegistersRes.data);
     } catch (error) {
       console.error('Failed to fetch initial data:', error);
       showToast('Failed to load data from server', 'error');
@@ -109,10 +151,11 @@ export const AppProvider = ({ children }) => {
   };
 
   const showToast = (message, type = 'success') => {
-    setToast({ message, type, id: Date.now() });
+    const toastId = Date.now();
+    setToast({ message, type, id: toastId });
     setTimeout(() => {
-      setToast((prev) => (prev?.id === Date.now() ? null : prev));
-    }, 3500);
+      setToast((prev) => (prev?.id === toastId ? null : prev));
+    }, 5000);
   };
 
   const [confirmModal, setConfirmModal] = useState(null);
@@ -149,6 +192,8 @@ export const AppProvider = ({ children }) => {
       setUser(res.data);
       setUserRole(res.data.role);
       setIsAuthenticated(true);
+      localStorage.setItem('crackerhub_user', JSON.stringify(res.data));
+      localStorage.setItem('crackerhub_user_role', res.data.role);
       showToast(`Welcome back, ${res.data.name}!`, 'success');
       return true;
     } catch (error) {
@@ -160,8 +205,12 @@ export const AppProvider = ({ children }) => {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    localStorage.removeItem('crackerhub_user');
+    localStorage.removeItem('crackerhub_user_role');
+    localStorage.removeItem('crackerhub_current_tab');
     showToast('Logged out successfully.', 'info');
   };
+
 
   const addCustomer = async (data) => {
     const created = {
@@ -280,6 +329,108 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // Shop Item CRUD Handlers
+  const addShopItem = async (data) => {
+    try {
+      const res = await axios.post(`${API_URL}/shop-items`, data);
+      setShopItems((prev) => [res.data, ...prev.filter(i => (i._id || i.id) !== (res.data._id || res.data.id))]);
+      addAuditLog('CREATE_SHOP_ITEM', 'Shop Item Master', `Added shop item ${data.name} (Cost: ₹${data.cost})`);
+      showToast(`Shop item saved: ${data.name}`, 'success');
+    } catch (error) {
+      const newItem = { ...data, id: `SHP-${Date.now()}` };
+      setShopItems((prev) => [newItem, ...prev]);
+      showToast(`Shop item saved: ${data.name}`, 'success');
+    }
+  };
+
+  const updateShopItem = async (id, data) => {
+    try {
+      const res = await axios.put(`${API_URL}/shop-items/${id}`, data);
+      setShopItems((prev) => prev.map(i => (i._id === id || i.id === id) ? res.data : i));
+      showToast(`Shop item updated: ${data.name}`, 'success');
+    } catch (error) {
+      setShopItems((prev) => prev.map(i => (i._id === id || i.id === id) ? { ...i, ...data } : i));
+      showToast(`Shop item updated: ${data.name}`, 'success');
+    }
+  };
+
+  const deleteShopItem = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/shop-items/${id}`);
+      setShopItems((prev) => prev.filter(i => (i._id !== id && i.id !== id)));
+      showToast('Shop item removed', 'info');
+    } catch (error) {
+      setShopItems((prev) => prev.filter(i => (i._id !== id && i.id !== id)));
+      showToast('Shop item removed', 'info');
+    }
+  };
+
+  const addImport = async (data) => {
+    try {
+      const res = await axios.post(`${API_URL}/imports`, data);
+      setImports((prev) => [res.data, ...prev]);
+      addAuditLog('CREATE_IMPORT', 'Imports', `Imported invoice ${data.invoiceNo} for ${data.cracker || data.itemName}`);
+    } catch (error) {
+      const newItem = { ...data, id: `IMP-${Date.now()}` };
+      setImports((prev) => [newItem, ...prev]);
+    }
+  };
+
+  const deleteImport = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/imports/${id}`);
+      setImports((prev) => prev.filter(i => (i._id !== id && i.id !== id)));
+      showToast('Import record removed', 'info');
+    } catch (error) {
+      setImports((prev) => prev.filter(i => (i._id !== id && i.id !== id)));
+      showToast('Import record removed', 'info');
+    }
+  };
+
+  const updateImport = async (id, data) => {
+    try {
+      const res = await axios.put(`${API_URL}/imports/${id}`, data);
+      setImports((prev) => prev.map(i => (i._id === id || i.id === id) ? res.data : i));
+      showToast('Import record updated successfully', 'success');
+    } catch (error) {
+      setImports((prev) => prev.map(i => (i._id === id || i.id === id) ? { ...i, ...data } : i));
+      showToast('Import record updated successfully', 'success');
+    }
+  };
+
+  const addDailyRegister = async (data) => {
+    try {
+      const res = await axios.post(`${API_URL}/daily-registers`, data);
+      setDailyRegisters((prev) => [res.data, ...prev.filter(r => !(r.date === data.date && r.itemName === data.itemName))]);
+      addAuditLog('CREATE_DAILY_REGISTER', 'Export & Daily Register', `Saved daily register for ${data.itemName} on ${data.date}`);
+    } catch (error) {
+      const newReg = { ...data, id: `REG-${Date.now()}` };
+      setDailyRegisters((prev) => [newReg, ...prev.filter(r => !(r.date === data.date && r.itemName === data.itemName))]);
+    }
+  };
+
+  const updateDailyRegister = async (id, data) => {
+    try {
+      const res = await axios.put(`${API_URL}/daily-registers/${id}`, data);
+      setDailyRegisters((prev) => prev.map(r => (r._id === id || r.id === id) ? res.data : r));
+      showToast('Daily register entry updated', 'success');
+    } catch (error) {
+      setDailyRegisters((prev) => prev.map(r => (r._id === id || r.id === id) ? { ...r, ...data } : r));
+      showToast('Daily register entry updated', 'success');
+    }
+  };
+
+  const deleteDailyRegister = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/daily-registers/${id}`);
+      setDailyRegisters((prev) => prev.filter(r => (r._id !== id && r.id !== id)));
+      showToast('Daily register entry removed', 'info');
+    } catch (error) {
+      setDailyRegisters((prev) => prev.filter(r => (r._id !== id && r.id !== id)));
+      showToast('Daily register entry removed', 'info');
+    }
+  };
+
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -338,10 +489,16 @@ export const AppProvider = ({ children }) => {
       documents,
       approvals,
       auditLogs,
+      shopItems,
+      setShopItems,
+      dailyRegisters,
+      setDailyRegisters,
       // Toast & Modals
       toast,
+      setToast,
       showToast,
       confirmModal,
+
       requestConfirm,
       closeConfirm,
       // Totals
@@ -362,6 +519,15 @@ export const AppProvider = ({ children }) => {
       addDispatchOrder,
       addSafetyRecord,
       approvePendingTask,
+      addShopItem,
+      updateShopItem,
+      deleteShopItem,
+      addImport,
+      updateImport,
+      deleteImport,
+      addDailyRegister,
+      updateDailyRegister,
+      deleteDailyRegister,
       formatCurrency
     }}>
       {children}
@@ -370,3 +536,4 @@ export const AppProvider = ({ children }) => {
 };
 
 export const useApp = () => useContext(AppContext);
+

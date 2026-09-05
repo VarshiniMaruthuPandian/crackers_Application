@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 import React, { useState, useEffect } from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> Stashed changes
 import {
   Flame,
   LayoutDashboard,
@@ -23,9 +27,16 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+<<<<<<< Updated upstream
   UserPlus,
   ClipboardList,
   X
+=======
+  X,
+  Tag,
+  Plus,
+  List
+>>>>>>> Stashed changes
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -42,6 +53,7 @@ export const Sidebar = () => {
     theme
   } = useApp();
 
+<<<<<<< Updated upstream
   // Multi-dropdown state object: { [itemName]: boolean }
   const [openDropdowns, setOpenDropdowns] = useState({
     Agents: false,
@@ -52,6 +64,14 @@ export const Sidebar = () => {
 
   // Track hover popover for collapsed sidebar
   const [hoveredItem, setHoveredItem] = useState(null);
+=======
+  const [importsSubMenuOpen, setImportsSubMenuOpen] = useState(
+    currentTab.startsWith('Imports')
+  );
+  const [exportsSubMenuOpen, setExportsSubMenuOpen] = useState(
+    currentTab.startsWith('Exports')
+  );
+>>>>>>> Stashed changes
 
   const navGroups = [
     {
@@ -63,11 +83,26 @@ export const Sidebar = () => {
     {
       group: 'CRM & SALES',
       items: [
+<<<<<<< Updated upstream
         { name: 'Agents', icon: Users, drop:[{name: 'Add Agents', tab: 'Addagents', icon: UserPlus}, {name: 'List Agents', tab: 'Listagents', icon: ClipboardList}]},
         { name: 'Customers', icon: Users, tab: 'Customers' },
         { name: 'Products', icon: Boxes, tab: 'Products' },
         { name: 'Exports', icon: ArrowUpRight, tab: 'Exports' },
         { name: 'Dispatch', icon: Truck, tab: 'Dispatch' }
+=======
+        { name: 'Customers', icon: Users },
+        { name: 'Products', icon: Boxes },
+        {
+          name: 'Exports',
+          icon: ArrowUpRight,
+          hasSubMenu: true,
+          subItems: [
+            { name: 'ExportsStock', label: 'Admin Existing Stock', icon: List },
+            { name: 'ExportsRegister', label: 'Daily Register', icon: Plus }
+          ]
+        },
+        { name: 'Dispatch', icon: Truck }
+>>>>>>> Stashed changes
       ]
     },
     {
@@ -89,12 +124,29 @@ export const Sidebar = () => {
     {
       group: 'INVENTORY & PURCHASES',
       items: [
+<<<<<<< Updated upstream
         { name: 'Stock', icon: Boxes, tab: 'Stock' },
         { name: 'Imports', icon: ArrowDownLeft, tab: 'Imports' },
         { name: 'Purchases', icon: ShoppingBag, tab: 'Purchases' },
         { name: 'Suppliers', icon: Building2, tab: 'Suppliers' }
+=======
+        { name: 'ItemMaster', icon: Tag, label: 'Item Master' },
+        { name: 'Stock', icon: Boxes },
+        {
+          name: 'Imports',
+          icon: ArrowDownLeft,
+          hasSubMenu: true,
+          subItems: [
+            { name: 'ImportsAdd', label: 'Add', icon: Plus },
+            { name: 'ImportsList', label: 'List', icon: List }
+          ]
+        },
+        { name: 'Purchases', icon: ShoppingBag },
+        { name: 'Suppliers', icon: Building2 }
+>>>>>>> Stashed changes
       ]
     },
+
     {
       group: 'WORKFORCE & HR',
       items: [
@@ -125,6 +177,7 @@ export const Sidebar = () => {
     }
   ];
 
+<<<<<<< Updated upstream
   // Auto-expand dropdown if active tab belongs to its sub-items
   useEffect(() => {
     navGroups.forEach((group) => {
@@ -147,6 +200,17 @@ export const Sidebar = () => {
   const handleNavClick = (tabName) => {
     if (tabName) {
       setCurrentTab(tabName);
+=======
+  const handleNavClick = (name) => {
+    if (name === 'Imports') {
+      setImportsSubMenuOpen(!importsSubMenuOpen);
+      setCurrentTab('ImportsAdd');
+    } else if (name === 'Exports') {
+      setExportsSubMenuOpen(!exportsSubMenuOpen);
+      setCurrentTab('ExportsRegister');
+    } else {
+      setCurrentTab(name);
+>>>>>>> Stashed changes
     }
     if (mobileMenuOpen) setMobileMenuOpen(false);
     setHoveredItem(null);
@@ -228,6 +292,7 @@ export const Sidebar = () => {
 
                 {group.items.map((item) => {
                   const Icon = item.icon;
+<<<<<<< Updated upstream
                   const hasDropdown = (item.drop && item.drop.length > 0) || (item.subItems && item.subItems.length > 0);
                   const subItems = item.drop || item.subItems || [];
                   const isOpen = !!openDropdowns[item.name];
@@ -275,11 +340,42 @@ export const Sidebar = () => {
                         {(!sidebarCollapsed || mobileMenuOpen) && (
                           <div className="flex items-center gap-2">
                             {/* Badge */}
+=======
+                  const isImportsGroup = item.name === 'Imports';
+                  const isExportsGroup = item.name === 'Exports';
+                  const isActive = currentTab === item.name || 
+                    (isImportsGroup && currentTab.startsWith('Imports')) ||
+                    (isExportsGroup && currentTab.startsWith('Exports'));
+                  
+                  const isSubOpen = isImportsGroup ? importsSubMenuOpen : (isExportsGroup ? exportsSubMenuOpen : false);
+
+                  return (
+                    <div key={item.name} className="space-y-1">
+                      <button
+                        onClick={() => handleNavClick(item.name)}
+                        className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-xs transition-all duration-200 group relative ${
+                          isActive
+                            ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 text-orange-400 border border-orange-500/30 shadow-lg shadow-orange-500/10 font-bold'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/80 border border-transparent'
+                        }`}
+                        title={sidebarCollapsed && !mobileMenuOpen ? (item.label || item.name) : undefined}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
+                            isActive ? 'text-orange-400' : 'text-slate-400 group-hover:text-slate-200'
+                          }`} />
+                          {(!sidebarCollapsed || mobileMenuOpen) && <span className="truncate">{item.label || item.name}</span>}
+                        </div>
+
+                        {(!sidebarCollapsed || mobileMenuOpen) && (
+                          <div className="flex items-center gap-1">
+>>>>>>> Stashed changes
                             {item.badge > 0 && (
                               <span className="px-1.5 py-0.5 text-[10px] font-black rounded-full bg-orange-500 text-slate-950 shadow-md">
                                 {item.badge}
                               </span>
                             )}
+<<<<<<< Updated upstream
 
                             {/* Dropdown Chevron */}
                             {hasDropdown && (
@@ -401,6 +497,44 @@ export const Sidebar = () => {
                               Open {item.name}
                             </button>
                           )}
+=======
+                            {item.hasSubMenu && (
+                              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isSubOpen ? 'rotate-180 text-orange-400' : 'text-slate-500'}`} />
+                            )}
+                          </div>
+                        )}
+
+                        {isActive && (
+                          <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-orange-500 rounded-l-full shadow-md shadow-orange-500/50" />
+                        )}
+                      </button>
+
+                      {/* Sub-menu Box for Imports / Exports as requested in attached 1st image */}
+                      {item.hasSubMenu && isSubOpen && (!sidebarCollapsed || mobileMenuOpen) && (
+                        <div className="ml-4 my-1 p-2 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1 animate-fade-in shadow-inner">
+                          <p className="px-2 pt-1 text-[9px] font-extrabold text-slate-500 tracking-widest uppercase">
+                            {item.name.toUpperCase()}
+                          </p>
+                          {item.subItems.map((sub) => {
+                            const isSubActive = currentTab === sub.name;
+                            return (
+                              <button
+                                key={sub.name}
+                                onClick={() => {
+                                  setCurrentTab(sub.name);
+                                  if (mobileMenuOpen) setMobileMenuOpen(false);
+                                }}
+                                className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 ${
+                                  isSubActive
+                                    ? 'bg-orange-500 text-slate-950 font-bold shadow-md'
+                                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                                }`}
+                              >
+                                {sub.label}
+                              </button>
+                            );
+                          })}
+>>>>>>> Stashed changes
                         </div>
                       )}
                     </div>
@@ -410,6 +544,8 @@ export const Sidebar = () => {
             ))}
           </div>
         </div>
+
+
 
         {/* Logout Bottom */}
         <div className="p-3 border-t border-slate-800/80 shrink-0">

@@ -34,6 +34,8 @@ export const WorkersView = () => {
   const [editingWorker, setEditingWorker] = useState(null);
   const [profileDrawer, setProfileDrawer] = useState(null);
 
+  const todayDateStr = new Date().toISOString().split('T')[0];
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
@@ -395,8 +397,16 @@ export const WorkersView = () => {
                   <input
                     type="date"
                     required
+                    max={todayDateStr}
                     value={formData.joinDate}
-                    onChange={(e) => setFormData({ ...formData, joinDate: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val > todayDateStr) {
+                        setFormData({ ...formData, joinDate: todayDateStr });
+                      } else {
+                        setFormData({ ...formData, joinDate: val });
+                      }
+                    }}
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200"
                   />
                 </div>

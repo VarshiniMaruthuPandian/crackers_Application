@@ -111,13 +111,14 @@ const INITIAL_WORKERS = [
 ];
 
 const INITIAL_IMPORTS = [
-  { id: 'IMP-2026-001', date: '2026-08-25', invoiceNo: 'INV-SIV-8901', supplier: 'Sivakasi Fireworks Ltd', cracker: 'Lakshmi Crack', bundles: 20, packetsPerBundle: 100, totalPackets: 2000, costPerBundle: 4500, totalAmount: 90000, paymentStatus: 'Paid', remarks: 'Pre-Diwali stock arrival' },
-  { id: 'IMP-2026-002', date: '2026-08-25', invoiceNo: 'INV-STD-4412', supplier: 'Standard Fireworks Agency', cracker: 'Sanguchakra', bundles: 15, packetsPerBundle: 50, totalPackets: 750, costPerBundle: 3200, totalAmount: 48000, paymentStatus: 'Paid', remarks: 'Fresh batch batch #88' },
-  { id: 'IMP-2026-003', date: '2026-08-24', invoiceNo: 'INV-APX-309', supplier: 'Apex Pyrotechnics India', cracker: 'Flower Pots', bundles: 25, packetsPerBundle: 40, totalPackets: 1000, costPerBundle: 5800, totalAmount: 145000, paymentStatus: 'Partial', remarks: '₹22,000 pending' },
-  { id: 'IMP-2026-004', date: '2026-08-23', invoiceNo: 'INV-SIV-8845', supplier: 'Sivakasi Fireworks Ltd', cracker: 'Rockets Sky Bomb', bundles: 10, packetsPerBundle: 30, totalPackets: 300, costPerBundle: 6400, totalAmount: 64000, paymentStatus: 'Pending', remarks: 'Payment due by Aug 30' },
-  { id: 'IMP-2026-005', date: '2026-08-22', invoiceNo: 'INV-STD-4390', supplier: 'Standard Fireworks Agency', cracker: 'Sparklers 15cm', bundles: 30, packetsPerBundle: 120, totalPackets: 3600, costPerBundle: 1800, totalAmount: 54000, paymentStatus: 'Paid', remarks: 'Fast-moving item' },
-  { id: 'IMP-2026-006', date: '2026-08-20', invoiceNo: 'INV-NAT-112', supplier: 'National Crackers Mart', cracker: 'Atom Bomb Deluxe', bundles: 8, packetsPerBundle: 25, totalPackets: 200, costPerBundle: 7200, totalAmount: 57600, paymentStatus: 'Paid', remarks: 'Inspected for safety tags' }
+  { id: 'IMP-2026-001', date: '2026-08-25', invoiceNo: 'INV-SIV-8901', supplier: 'Sivakasi Fireworks Ltd', cracker: 'Lakshmi Crack', itemName: 'Lakshmi Crack', bundles: 20, packetsPerBundle: 100, totalPackets: 2000, costPerBundle: 4500, unitCost: 4500, totalAmount: 90000, paidAmount: 90000, balanceAmount: 0, paymentStatus: 'Paid', remarks: 'Pre-Diwali stock arrival' },
+  { id: 'IMP-2026-002', date: '2026-08-25', invoiceNo: 'INV-STD-4412', supplier: 'Standard Fireworks Agency', cracker: 'Sanguchakra', itemName: 'Sanguchakra', bundles: 15, packetsPerBundle: 50, totalPackets: 750, costPerBundle: 3200, unitCost: 3200, totalAmount: 48000, paidAmount: 48000, balanceAmount: 0, paymentStatus: 'Paid', remarks: 'Fresh batch batch #88' },
+  { id: 'IMP-2026-003', date: '2026-08-24', invoiceNo: 'INV-APX-309', supplier: 'Apex Pyrotechnics India', cracker: 'Flower Pots', itemName: 'Flower Pots', bundles: 25, packetsPerBundle: 40, totalPackets: 1000, costPerBundle: 5800, unitCost: 5800, totalAmount: 145000, paidAmount: 123000, balanceAmount: 22000, paymentStatus: 'Partial', remarks: '₹22,000 pending' },
+  { id: 'IMP-2026-004', date: '2026-08-23', invoiceNo: 'INV-SIV-8845', supplier: 'Sivakasi Fireworks Ltd', cracker: 'Rockets Sky Bomb', itemName: 'Rockets Sky Bomb', bundles: 10, packetsPerBundle: 30, totalPackets: 300, costPerBundle: 6400, unitCost: 6400, totalAmount: 64000, paidAmount: 0, balanceAmount: 64000, paymentStatus: 'Pending', remarks: 'Payment due by Aug 30' },
+  { id: 'IMP-2026-005', date: '2026-08-22', invoiceNo: 'INV-STD-4390', supplier: 'Standard Fireworks Agency', cracker: 'Sparklers 15cm', itemName: 'Sparklers 15cm', bundles: 30, packetsPerBundle: 120, totalPackets: 3600, costPerBundle: 1800, unitCost: 1800, totalAmount: 54000, paidAmount: 54000, balanceAmount: 0, paymentStatus: 'Paid', remarks: 'Fast-moving item' },
+  { id: 'IMP-2026-006', date: '2026-08-20', invoiceNo: 'INV-NAT-112', supplier: 'National Crackers Mart', cracker: 'Atom Bomb Deluxe', itemName: 'Atom Bomb Deluxe', bundles: 8, packetsPerBundle: 25, totalPackets: 200, costPerBundle: 7200, unitCost: 7200, totalAmount: 57600, paidAmount: 57600, balanceAmount: 0, paymentStatus: 'Paid', remarks: 'Inspected for safety tags' }
 ];
+
 
 const INITIAL_EXPORTS = [
   { id: 'EXP-2026-101', date: '2026-08-26', orderId: 'ORD-9981', customer: 'Royal Celebrations Event Co', cracker: 'Lakshmi Crack', bundles: 5, packets: 500, sellingPrice: 5400, totalAmount: 27000, paymentStatus: 'Paid', remarks: 'Event bulk order' },
@@ -197,4 +198,22 @@ const CHART_TOP_SELLING = [
   { name: 'Ground Chakkars', sales: 310, value: 248000 }
 ];
 
-module.exports = { INITIAL_CRACKERS, INITIAL_SUPPLIERS, INITIAL_WORKERS, INITIAL_IMPORTS, INITIAL_EXPORTS, INITIAL_STOCK, INITIAL_ATTENDANCE, INITIAL_PAYROLL, INITIAL_NOTIFICATIONS, INITIAL_ACTIVITIES, INITIAL_CUSTOMERS, INITIAL_RAW_MATERIALS, INITIAL_PRODUCTION_ORDERS, INITIAL_BOM, INITIAL_PURCHASE_REQUESTS, INITIAL_QC_RECORDS, INITIAL_PACKING_ORDERS, INITIAL_DISPATCH_ORDERS, INITIAL_SAFETY_RECORDS, INITIAL_DOCUMENTS, INITIAL_APPROVALS, INITIAL_AUDIT_LOGS };
+const INITIAL_SHOP_ITEMS = [
+  { id: 'SHP-001', name: 'Lakshmi Crack', cost: 4500, category: 'Sound Crackers', description: 'Standard 100-packet bundle sound cracker', date: '2026-08-20' },
+  { id: 'SHP-002', name: 'Sanguchakra', cost: 3200, category: 'Chakkars', description: 'Fast spinning ground chakkar 50-pkt box', date: '2026-08-20' },
+  { id: 'SHP-003', name: 'Flower Pots', cost: 5800, category: 'Fountains', description: 'Deluxe metallic flower pots fountain', date: '2026-08-20' },
+  { id: 'SHP-004', name: 'Ground Chakkar', cost: 2900, category: 'Chakkars', description: 'Classic ground spinning wheel', date: '2026-08-21' },
+  { id: 'SHP-005', name: 'Sparklers 15cm', cost: 1800, category: 'Sparklers', description: 'Electric gold sparklers 120 pkts', date: '2026-08-21' },
+  { id: 'SHP-006', name: 'Rockets Sky Bomb', cost: 6400, category: 'Rockets', description: 'High altitude sound rocket', date: '2026-08-22' },
+  { id: 'SHP-007', name: 'Atom Bomb Deluxe', cost: 7200, category: 'Sound Crackers', description: 'Heavy sound loud explosion cracker', date: '2026-08-22' }
+];
+
+const INITIAL_DAILY_REGISTERS = [
+  { id: 'REG-001', date: '2026-08-24', itemName: 'Lakshmi Crack', openingStock: 50, productionQty: 30, totalStock: 80, salesQty: 15, remainingStock: 65, remarks: 'Normal operations' },
+  { id: 'REG-002', date: '2026-08-25', itemName: 'Lakshmi Crack', openingStock: 65, productionQty: 25, totalStock: 90, salesQty: 25, remainingStock: 65, remarks: 'Pre-festival spike' },
+  { id: 'REG-003', date: '2026-08-26', itemName: 'Lakshmi Crack', openingStock: 65, productionQty: 20, totalStock: 85, salesQty: 20, remainingStock: 65, remarks: 'Batch delivered' },
+  { id: 'REG-004', date: '2026-08-25', itemName: 'Sanguchakra', openingStock: 20, productionQty: 15, totalStock: 35, salesQty: 25, remainingStock: 10, remarks: 'High retail demand' },
+  { id: 'REG-005', date: '2026-08-26', itemName: 'Sanguchakra', openingStock: 10, productionQty: 20, totalStock: 30, salesQty: 20, remainingStock: 10, remarks: 'Dispatched to vendor' }
+];
+
+module.exports = { INITIAL_CRACKERS, INITIAL_SUPPLIERS, INITIAL_WORKERS, INITIAL_IMPORTS, INITIAL_EXPORTS, INITIAL_STOCK, INITIAL_ATTENDANCE, INITIAL_PAYROLL, INITIAL_NOTIFICATIONS, INITIAL_ACTIVITIES, INITIAL_CUSTOMERS, INITIAL_RAW_MATERIALS, INITIAL_PRODUCTION_ORDERS, INITIAL_BOM, INITIAL_PURCHASE_REQUESTS, INITIAL_QC_RECORDS, INITIAL_PACKING_ORDERS, INITIAL_DISPATCH_ORDERS, INITIAL_SAFETY_RECORDS, INITIAL_DOCUMENTS, INITIAL_APPROVALS, INITIAL_AUDIT_LOGS, INITIAL_SHOP_ITEMS, INITIAL_DAILY_REGISTERS };

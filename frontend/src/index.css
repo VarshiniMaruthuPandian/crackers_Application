@@ -184,3 +184,34 @@
 .animate-spark {
   animation: spark 1.5s ease-out infinite;
 }
+
+/* Fix Calendar Date Picker Visibility for Dark & Light Themes */
+input[type="date"] {
+  color-scheme: dark !important;
+  color: #f8fafc !important;
+}
+
+.light-theme input[type="date"] {
+  color-scheme: light !important;
+  color: #0f172a !important;
+}
+
+/* Calendar picker indicator styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer !important;
+  background-color: transparent !important;
+  filter: none !important;
+  opacity: 1 !important;
+  padding: 2px;
+  transition: transform 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  transform: scale(1.15);
+}
+
+.light-theme input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
